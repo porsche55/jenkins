@@ -1,0 +1,43 @@
+pipeline {
+    agent any
+
+    environment {
+        GHCR_USER = 'porsche55'  // 🔁 Change this
+        IMAGE_NAME = 'ghcr.io/porsche55/my-web-app:latest'  // 🔁 Change this
+    }
+
+    stages {
+        stage('Clone Repo') {
+            steps {
+                git 'git@github.com:porsche55/jenkins.git'  // 🔁 Change this
+            }
+        }
+
+        stage('Build Python App') {
+            steps {
+                sh 'python3 app.py'
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                sh 'docker build -t $IMAGE_NAME:latest .'
+            }
+        }
+
+        stage('Push to GHCR') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'ghcr-creds', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
+                    sh 'echo $PASS | docker login ghcr.io -u $USER --password-stdin'
+                    sh 'docker push $IMAGE_NAME:latest'
+                }
+            }
+        }
+
+        stage('Deploy to Kubernetes') {
+            steps {
+                sh 'kubectl apply -f deployment.yaml'
+            }
+        }
+    }
+}
