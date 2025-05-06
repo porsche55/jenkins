@@ -2,14 +2,14 @@ pipeline {
     agent any
 
     environment {
-        GHCR_USER = 'porsche55'  // 🔁 Change this
-        IMAGE_NAME = 'ghcr.io/porsche55/my-web-app:latest'  // 🔁 Change this
+        GHCR_USER = 'porsche55'  
+        IMAGE_NAME = 'ghcr.io/porsche55/my-web-app:latest'  
     }
 
     stages {
         stage('Clone Repo') {
             steps {
-                git 'git@github.com:porsche55/jenkins.git'  // 🔁 Change this
+                git branch: 'main', credentialsId: 'github-creds', url: 'https://github.com/porsche55/jenkins.git'
             }
         }
 
